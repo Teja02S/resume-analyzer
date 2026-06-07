@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Resume Analyzer deployment on AWS'
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Default: production
+    Description: Environment name
+  
+  ImageUri:
+    Type: String
+    Description: Docker image URI from ECR
+  
+  DesiredCount:
+    Type: Number
+    Default: 2
+    Description: Desired number of ECS tasks
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/ecs/resume-analyzer-${EnvironmentName}'
+      RetentionInDays: 30
+
+  ECSCluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Sub 'resume-analyzer-${EnvironmentName}'
+      ClusterSettings:
+        - Name: containerInsights
+          Value: enabled
+
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: !Sub 'resume-analyzer-${EnvironmentName}'
+      NetworkMode: awsvpc
+      RequiresCompatibilities:
+        - FARGATE
+      Cpu: '256'
+      Memory: '512'
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: resume-analyzer
+          Image: !Ref ImageUri
+          PortMappings:
+            - ContainerPort: 5000
+              Protocol: tcp
+          Environment:
+            - Name: FLASK_ENV
+              Value: !Ref EnvironmentName
+            - Name: DEBUG
+              Value: 'False'
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref LogGroup
+              awslogs-region: !Ref 'AWS::Region'
+              awslogs-stream-prefix: ecs
+
+  ECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      ServiceName: !Sub 'resume-analyzer-service-${EnvironmentName}'
+      Cluster: !GetAtt ECSCluster.Arn
+      TaskDefinition: !Ref TaskDefinition
+      DesiredCount: !Ref DesiredCount
+      LaunchType: FARGATE
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          Subnets:
+            - subnet-12345678
+          SecurityGroups:
+            - sg-12345678
+
+Outputs:
+  ClusterName:
+    Value: !GetAtt ECSCluster.ClusterName
+    Description: ECS Cluster Name
+  
+  ServiceName:
+    Value: !GetAtt ECSService.ServiceName
+    Description: ECS Service Name
