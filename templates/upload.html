@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="upload-section">
+    <h2>Upload Your Resume</h2>
+    
+    <form id="uploadForm" class="upload-form">
+        <div class="form-group">
+            <label for="resume">Resume File (PDF, DOCX, TXT)</label>
+            <input type="file" id="resume" name="file" accept=".pdf,.docx,.txt" required>
+            <small>Maximum file size: 10MB</small>
+        </div>
+
+        <div class="form-group">
+            <label for="jobDesc">Job Description (Optional)</label>
+            <textarea id="jobDesc" name="job_description" placeholder="Paste the job description here..." rows="8"></textarea>
+        </div>
+
+        <button type="submit" class="btn-primary">Analyze Resume</button>
+    </form>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+        <p>Analyzing your resume...</p>
+    </div>
+
+    <div id="results" style="display: none;"></div>
+</section>
+{% endblock %}

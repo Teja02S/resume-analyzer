@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: resume-analyzer-config
+data:
+  flask_env: "production"
+  debug: "false"

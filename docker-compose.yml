@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  resume-analyzer:
+    build: .
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: development
+      DEBUG: "False"
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped

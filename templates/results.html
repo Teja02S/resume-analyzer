@@ -1,0 +1,35 @@
+<section class="results-section">
+    <h2>Analysis Results</h2>
+
+    <div class="score-cards">
+        <div class="score-card">
+            <h3>Skill Match</h3>
+            <div class="score-value" id="skillScore">0%</div>
+        </div>
+        <div class="score-card">
+            <h3>Text Similarity</h3>
+            <div class="score-value" id="similarityScore">0%</div>
+        </div>
+        <div class="score-card">
+            <h3>Overall Score</h3>
+            <div class="score-value overall" id="overallScore">0%</div>
+        </div>
+    </div>
+
+    <div class="skills-section">
+        <h3>Extracted Skills</h3>
+        <div id="skillsContainer"></div>
+    </div>
+
+    <div class="matched-section">
+        <h3>Matched Skills</h3>
+        <div id="matchedContainer"></div>
+    </div>
+
+    <div class="entities-section">
+        <h3>Resume Information</h3>
+        <div id="entitiesContainer"></div>
+    </div>
+
+    <button class="btn-secondary" onclick="location.reload()">Analyze Another Resume</button>
+</section>

@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: resume-analyzer
+  labels:
+    app: resume-analyzer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: resume-analyzer
+  template:
+    metadata:
+      labels:
+        app: resume-analyzer
+    spec:
+      containers:
+      - name: resume-analyzer
+        image: resume-analyzer:latest
+        ports:
+        - containerPort: 5000
+        env:
+        - name: FLASK_ENV
+          valueFrom:
+            configMapKeyRef:
+              name: resume-analyzer-config
+              key: flask_env
+        - name: DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: resume-analyzer-config
+              key: debug
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
